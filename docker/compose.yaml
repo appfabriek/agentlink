@@ -1,0 +1,46 @@
+# agentlink in a container (docs/docker.md). In this directory, with the line
+# ANTHROPIC_API_KEY_FILE=<key file> in .env next to this file (every compose
+# command needs it):
+#
+#   INVITE_LINK='<invite link>' docker compose up -d --build
+#
+# Config when it starts, nothing in the image:
+#   ANTHROPIC_API_KEY_FILE  path on the host to the agent's own key (required)
+#   INVITE_LINK             the invite link from the app, only the first time
+#   AGENTLINK_JOIN_ARGS     extra flags for join, such as --tools off or
+#                           --service-agent
+#   AGENTLINK_POSTURE       how the agent runs, in one line (join --posture)
+name: agentlink
+
+services:
+  agent:
+    build: .
+    image: agentlink:local
+    restart: unless-stopped
+    # The init is in the image: tini as PID 1 reaps and passes on signals.
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Only when set here: an image built on this one keeps its own.
+    environment:
+      - INVITE_LINK
+      - AGENTLINK_JOIN_ARGS
+      - AGENTLINK_POSTURE
+    secrets:
+      - anthropic-api-key
+    volumes:
+      - home:/home/agent
+
+volumes:
+  home:
+
+secrets:
+  # In the container at /run/secrets/anthropic-api-key, where the image's
+  # ANTHROPIC_API_KEY_FILE points. The file must be readable for uid 10001
+  # in the container.
+  anthropic-api-key:
+    file: ${ANTHROPIC_API_KEY_FILE:?set ANTHROPIC_API_KEY_FILE to the path of the key file}
