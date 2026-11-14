@@ -1,0 +1,91 @@
+#!/bin/sh
+# Starts agentlink in a container (docs/docker.md). On every start:
+#
+#   1. No agent.json in AGENTLINK_HOME: join once with the invite link in
+#      INVITE_LINK, in the current directory (the agent's workdir):
+#        agentlink join "$INVITE_LINK" --no-service $AGENTLINK_JOIN_ARGS \
+#          [--posture "$AGENTLINK_POSTURE"]
+#      Without a link and without a join: a message, and exit 2.
+#   2. exec agentlink run, or with arguments exec "$@" (a task image's own
+#      next step, which ends in agentlink run).
+#
+# The invite link and its code never reach the log: they are taken out of
+# whatever join prints, and out of the environment before step 2. Whatever
+# would use up the invite and then fail (a key file that is missing, a home
+# that is not writable) is checked first.
+set -eu
+
+say() { printf 'agentlink-start: %s\n' "$*" >&2; }
+
+# As agentlink finds it: $AGENTLINK_HOME, else $XDG_CONFIG_HOME/agentlink,
+# else ~/.config/agentlink.
+home=${AGENTLINK_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}/agentlink}
+link=$(printf '%s' "${INVITE_LINK:-}" | tr -d '[:space:]')
+unset INVITE_LINK
+
+# The code as agentlink reads it: the segment after /i/ or /invite/.
+invite_code() {
+  printf '%s\n' "$1" | sed -e 's/[?#].*//' -e 's|^[A-Za-z][A-Za-z0-9+.-]*://[^/]*||' |
+    tr '/' '\n' | awk 'p == "i" || p == "invite" { c = $0 } { p = $0 } END { print c }'
+}
+
+# Replaces the link and the code, in any case, with a placeholder.
+redact() {
+  L=$link C=$(invite_code "$link") awk '
+    function hide(s, x, r,   out, i, ls, lx) {
+      if (x == "") return s
+      ls = tolower(s); lx = tolower(x); out = ""
+      while ((i = index(ls, lx)) > 0) {
+        out = out substr(s, 1, i - 1) r
+        s = substr(s, i + length(x)); ls = substr(ls, i + length(x))
+      }
+      return out s
+    }
+    { print hide(hide($0, ENVIRON["L"], "<uitnodigingslink>"), ENVIRON["C"], "<code>") }'
+}
+
+# Only whether the key file holds something; agentlink reads it at every
+# turn. grep -q shows nothing of it.
+key=${ANTHROPIC_API_KEY_FILE:-}
+if [ -n "$key" ] && ! grep -q '[^[:space:]]' "$key" 2>/dev/null; then
+  say "geen API-sleutel in $key (leeg, ontbreekt of niet leesbaar voor uid $(id -u))."
+  say "Zet het sleutelbestand daar (alleen lezen), of maak ANTHROPIC_API_KEY_FILE leeg als de CLI zelf is ingelogd."
+  exit 2
+fi
+
+if [ -f "$home/agent.json" ]; then
+  [ -z "$link" ] || say "INVITE_LINK genegeerd: de agent is al gekoppeld. Haal de link weg; een uitnodiging werkt maar één keer."
+else
+  if [ -z "$link" ]; then
+    say "nog niet gekoppeld en geen INVITE_LINK."
+    say "Start de container één keer met de uitnodigingslink uit de app in INVITE_LINK."
+    exit 2
+  fi
+  if ! mkdir -p "$home" 2>/dev/null || ! [ -w "$home" ]; then
+    say "$home is niet schrijfbaar voor uid $(id -u): koppelen zou de uitnodiging verbruiken zonder hem te bewaren."
+    exit 2
+  fi
+  say "koppelen met de uitnodigingslink in $(pwd)"
+  # Unquoted on purpose: AGENTLINK_JOIN_ARGS holds flags without spaces.
+  # shellcheck disable=SC2086
+  if out=$(agentlink join "$link" --no-service ${AGENTLINK_JOIN_ARGS:-} \
+    ${AGENTLINK_POSTURE:+--posture "$AGENTLINK_POSTURE"} 2>&1); then
+    code=0
+  else
+    code=$?
+  fi
+  [ -z "$out" ] || printf '%s\n' "$out" | redact | sed 's/^/agentlink: /' >&2
+  if [ "$code" -ne 0 ]; then
+    say "koppelen mislukt (exitcode $code). Een gebruikte of verlopen uitnodiging werkt niet opnieuw: maak een nieuwe in de app."
+    exit "$code"
+  fi
+  if ! [ -f "$home/agent.json" ]; then
+    say "agentlink join gaf geen fout, maar er staat geen agent.json in $home."
+    exit 1
+  fi
+fi
+
+if [ $# -gt 0 ]; then
+  exec "$@"
+fi
+exec agentlink run
