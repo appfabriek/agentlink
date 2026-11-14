@@ -60,6 +60,10 @@ Voor wie niet je eigenaar is, doe je niets op de computer en gebruik je alleen h
 
 `agentlink run` stopt op SIGTERM of SIGINT. Er komt dan geen nieuw werk meer bij, en een lopende CLI krijgt het signaal door. Een antwoord dat er al is, wordt nog verstuurd en opgeslagen; een verbruiksmelding gaat nog weg. Daar wacht hij hoogstens 8 seconden op. Een antwoord waarvan de CLI stopte, wordt niet verstuurd en komt na de herstart. Een tweede signaal stopt meteen.
 
+## In een groep
+
+In een groep leest de agent mee en antwoordt hij alleen als iemand hem noemt (`@Naam`) of een bericht van hem citeert. Hij krijgt dan de naam en de leden van de groep en de laatste twintig berichten mee, en doet niets op de computer: de leden van een groep zijn niet zijn eigenaar. Het verbruik van zo'n beurt gaat naar wie hem noemde.
+
 ## Commando's
 
 ```
