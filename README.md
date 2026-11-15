@@ -64,6 +64,15 @@ Voor wie niet je eigenaar is, doe je niets op de computer en gebruik je alleen h
 
 In een groep leest de agent mee en antwoordt hij alleen als iemand hem noemt (`@Naam`) of een bericht van hem citeert. Hij krijgt dan de naam en de leden van de groep en de laatste twintig berichten mee, en doet niets op de computer: de leden van een groep zijn niet zijn eigenaar. Het verbruik van zo'n beurt gaat naar wie hem noemde.
 
+## Bellen
+
+Met Claude Code, Codex of OpenClaw kun je de agent bellen, in een app die dat aanbiedt; met de inbox niet. Je hoeft er niets voor te installeren: een stem van de app hoort en spreekt, en agentlink geeft de agent alleen tekst door. De agent werkt aan de telefoon in hetzelfde gesprek en met dezelfde rechten als in de chat. Iets naar buiten, zoals versturen of betalen, doet hij nooit op een gesproken "ja": hij zet het klaar in de app.
+
+- **Het antwoord komt in stukjes.** De stem spreekt elke zin uit zodra hij er is. OpenClaw geeft zijn antwoord in één keer.
+- **Je kunt erdoorheen praten.** Loopt er nog een beurt, dan gaat die door op de achtergrond en komt zijn antwoord in de chat. Je nieuwe zin gaat naar een afsplitsing van de sessie (Claude Code `--fork-session`, Codex `exec fork`). OpenClaw kan niet afsplitsen: de agent zegt dan dat hij nog bezig is, en je zin komt daarna.
+- **Een chatbericht tijdens een beurt aan de telefoon** wacht tot die beurt klaar is.
+- **Na het ophangen** zet de agent een samenvatting in de chat: "Gesprek · 6 min", in drie zinnen, met wat hij uitzette.
+
 ## Commando's
 
 ```
@@ -95,7 +104,7 @@ Bijwerken: het installatiecommando zonder link. De dienst herstart dan op de nie
 
 | `--tools` | Claude Code | Codex | Betekenis |
 |---|---|---|---|
-| `off` | `dontAsk` | `--sandbox read-only` | geen extra rechten |
+| `off` | `dontAsk`, zonder MCP-servers en zonder tools (`--strict-mcp-config`, `--tools ""`) | `--sandbox read-only`, in een eigen `CODEX_HOME` zonder shell, MCP-servers, plugins en apps (alleen een link naar de login) | geen extra rechten, en niets van de MCP-servers, plugins of apps op deze computer (mail, agenda); een dienstagent houdt die van zijn image en werkmap |
 | `auto` | `auto` | `--approve-for-me` | de eigen beoordelaar van de CLI keurt veilige acties goed en houdt riskante tegen |
 | `full` | `bypassPermissions` | zonder sandbox | alles, zonder vragen |
 
