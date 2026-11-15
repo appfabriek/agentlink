@@ -27,7 +27,7 @@ RUN apt-get update \
 FROM fetch AS download-agentlink
 ARG TARGETARCH
 # The release in agentlink/pubspec.yaml (test/docker_test.dart checks it).
-ARG AGENTLINK_VERSION=0.14.0
+ARG AGENTLINK_VERSION=0.15.0
 RUN set -eu; \
     case "$TARGETARCH" in \
       arm64) arch=arm64 ;; \
