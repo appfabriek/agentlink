@@ -245,7 +245,9 @@ ENV AGENTLINK_JOIN_ARGS="--service-agent --tools off" \
   instellingen van de taak. In het image is hij alleen-lezen, en dat is goed: de agent verandert zijn eigen opdracht
   niet.
 - **Wat de agent mag,** zet je in de [beheerde instellingen](https://code.claude.com/docs/en/managed-settings.md) van
-  Claude Code in `/etc/claude-code/`: die gaan boven alles in de werkmap en in `CLAUDE_CONFIG_DIR`.
+  Claude Code in `/etc/claude-code/`: die gaan boven alles in de werkmap en in `CLAUDE_CONFIG_DIR`. Een dienstagent
+  houdt bij `--tools off` de MCP-servers van zijn image en werkmap; een gewone agent met `off` krijgt geen enkele
+  MCP-server en alleen de tools die hij mag.
 - **Een eigen startstap** (een controle, een login): geef het startscript een commando mee. Na het koppelen start het
   dat in plaats van `agentlink run`, en dat commando eindigt met `exec agentlink run`:
 
