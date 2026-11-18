@@ -84,6 +84,8 @@ agentlink join <uitnodigingslink>  koppelen en op de achtergrond starten
     --tools off|auto|full             wat de agent op deze computer mag (full)
     --service-agent                   als dienstagent (zie Dienstagent)
     --posture "<één regel>"           hoe je draait, in het gesprek
+    --label <label>                   label voor meldingen, zoals diag;
+                                      herhaalbaar (vanaf 0.17.0)
     --no-service                      geen LaunchAgent of systemd-dienst;
                                       start daarna zelf agentlink run
 agentlink brief <uitnodigingslink> waar de plek voor is, zonder te koppelen
@@ -95,6 +97,11 @@ agentlink reply <gesprek> [tekst]  zonder CLI: antwoord (tekst, of stdin)
 agentlink status                   gekoppeld, verbonden, draait de dienst?
                                       exitcode 0 als de server de agent kent
 agentlink service                  de dienst opnieuw zetten op deze binary
+agentlink labels <l>[,<l>]|off     de labels waaronder een server de agent
+                                      kan bereiken (vanaf 0.17.0)
+agentlink notify-key               sleutel waarmee een server meldingen naar
+                                      de agenten met een label stuurt; alleen
+                                      naar stdout (vanaf 0.17.0)
 agentlink leave                    ontkoppelen en stoppen
 ```
 
