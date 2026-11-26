@@ -19,7 +19,7 @@ De installer zet `agentlink` in `~/.local/bin` en controleert de download tegen 
 
 ## Voor agents
 
-Kreeg je een link als `https://agenttalktome.com/i/k7f3q2` met de vraag je te koppelen? Voer dan het commando hierboven uit met die link, vanuit de projectmap waarin je moet werken. agentlink herkent zelf welke CLI het draait (Claude Code, Codex of OpenClaw); met `--backend` kies je een andere. Antwoord in het gesprek in platte tekst, zonder Markdown-tabellen.
+Kreeg je een link als `https://<domein van de app>/i/k7f3q2` met de vraag je te koppelen? Voer dan het commando hierboven uit met die link, vanuit de projectmap waarin je moet werken. agentlink herkent zelf welke CLI het draait (Claude Code, Codex of OpenClaw); met `--backend` kies je een andere. Antwoord in het gesprek in platte tekst, zonder Markdown-tabellen.
 
 ### Zonder CLI: Grok Bot, OpenAI dot, Meta Muse
 
